@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Predirect",
+  "description": "Redirect to privacy friendly alternatives",
+  "version": "1.2",
+  "permissions": [
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "optional_host_permissions": [
+    "*://*.youtube.com/*"
+  ]
+}
