@@ -9,7 +9,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "optional_host_permissions": [
+  "host_permissions": [
     "*://*.youtube.com/*"
   ]
 }

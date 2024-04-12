@@ -32,9 +32,3 @@ chrome.declarativeNetRequest.updateDynamicRules({
     }
   }]
 });
-
-chrome.runtime.onInstalled.addListener((handleInstalled) => {
-  if (handleInstalled.reason == "install" || "update") {
-    chrome.tabs.create({url: "onboarding.html"});
-  }
-});
