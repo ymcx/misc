@@ -28,4 +28,5 @@ android {
 
 dependencies {
     implementation("com.google.android.material:material:+")
+    implementation("androidx.browser:browser:+")
 }

@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.app.AlertDialog
 import android.content.SharedPreferences
 import android.widget.EditText
+import androidx.browser.customtabs.CustomTabsIntent
 
 class MainActivity : AppCompatActivity() {
     lateinit var sharedPref: SharedPreferences
@@ -18,7 +19,7 @@ class MainActivity : AppCompatActivity() {
             val address = sharedPref.getString(getString(R.string.url), null)
             val parameters = oldUrl.substring(oldUrl.lastIndexOf('/'), oldUrl.length)
             val url = Uri.parse("https://" + address + parameters)
-            startActivity(Intent(Intent.ACTION_VIEW, url))
+            CustomTabsIntent.Builder().setShareState(2).build().launchUrl(this, url)
             finish()
         }
         else {
