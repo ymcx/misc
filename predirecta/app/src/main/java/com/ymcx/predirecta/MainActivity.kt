@@ -17,8 +17,12 @@ class MainActivity : AppCompatActivity() {
         if (intent?.action == Intent.ACTION_VIEW) {
             val oldUrl = intent.data.toString()
             val address = sharedPref.getString(getString(R.string.url), null)
-            val parameters = oldUrl.substring(oldUrl.lastIndexOf('/'), oldUrl.length)
-            val url = Uri.parse("https://" + address + parameters)
+            val parameters = oldUrl.substring(oldUrl.lastIndexOf('/')+1, oldUrl.length)
+            val url = if (oldUrl.startsWith("https://youtu.be", true)) {
+                Uri.parse("https://" + address + "/watch?v=" + parameters)
+            } else {
+                Uri.parse("https://" + address + "/"         + parameters)
+            }
             CustomTabsIntent.Builder().setShareState(2).build().launchUrl(this, url)
             finish()
         }
