@@ -26,6 +26,6 @@ int main() {
   int battery;
   fscanf(file, "%i", &battery);
   fclose(file);    
-  ec_write((int)(sqrt(battery)/3.5)*32+128);
+  ec_write(192-(int)(sqrt(battery)/3.5)*32);
   return 0;
 }
