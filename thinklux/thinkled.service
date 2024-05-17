@@ -1,9 +1,6 @@
 [Unit]
-Description=Thinkled
+Description=Thinkled (service)
 
 [Service]
-Type=simple
+Type=oneshot
 ExecStart=/usr/local/sbin/thinkled
-
-[Install]
-WantedBy=multi-user.target

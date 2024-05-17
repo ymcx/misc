@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/io.h>
+#include <cmath>
 
 void send_ec_data(uint8_t data) {
   int timeout = 0x7ff;
@@ -22,22 +23,9 @@ void ec_write(uint8_t data) {
 int main() {
   iopl(3);
   FILE * file = fopen("/sys/class/power_supply/BAT0/capacity", "r");
-  int battery = 0;
-  while (1) {
-    fscanf(file, "%i", &battery);
-    if (battery <= 10) {
-      ec_write(192);
-    } else if (battery <= 50) {
-      ec_write(160);
-      if (battery <= 15) {
-        sleep(60);
-        continue;
-      }
-    } else {
-      ec_write(128);
-    }
-    sleep(900);
-  }
-  fclose(file);
+  int battery;
+  fscanf(file, "%i", &battery);
+  fclose(file);    
+  ec_write((int)(sqrt(battery)/3.5)*32+128);
   return 0;
 }
