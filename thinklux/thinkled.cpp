@@ -23,28 +23,20 @@ int main() {
   iopl(3);
   FILE * file = fopen("/sys/class/power_supply/BAT0/capacity", "r");
   int battery = 0;
-  int last = 0;
   while (1) {
     fscanf(file, "%i", &battery);
     if (battery <= 10) {
-      if (last != 1) {
-        ec_write(192);
-        last = 1;
-      }
+      ec_write(192);
     } else if (battery <= 50) {
-      if (last != 2) {
-        ec_write(160);
-        last = 2;
-      }
+      ec_write(160);
       if (battery <= 15) {
         sleep(60);
         continue;
       }
-    } else if (last != 3) {
+    } else {
       ec_write(128);
-      last = 3;
     }
-    sleep(300);
+    sleep(900);
   }
   fclose(file);
   return 0;
