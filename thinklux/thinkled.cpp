@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/io.h>
-#include <cmath>
 
 void send_ec_data(uint8_t data) {
   int timeout = 0x7ff;
@@ -26,6 +25,6 @@ int main() {
   int battery;
   fscanf(file, "%i", &battery);
   fclose(file);    
-  ec_write(192-(int)(sqrt(battery)/3.5)*32);
+  ec_write(192-(battery+34)/45*32);
   return 0;
 }
