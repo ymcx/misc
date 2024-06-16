@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
+#include <iostream>
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -19,12 +20,17 @@ void ec_write(uint8_t data) {
   send_ec_data(data);
 }
 
-int main() {
+int main(int argc, char * argv[]) {
   iopl(3);
-  FILE * file = fopen("/sys/class/power_supply/BAT0/capacity", "r");
-  int battery;
-  fscanf(file, "%i", &battery);
-  fclose(file);    
-  ec_write(192-(battery+34)/45*32);
+  int data;
+  if (argv[1] == NULL) {
+    FILE * file = fopen("/sys/class/power_supply/BAT0/capacity", "r");
+    fscanf(file, "%i", &data);
+    fclose(file);
+    data = 192 - (data + 34) / 45 * 32;
+  } else {
+    data = atoi(argv[1]);
+  }
+  ec_write(data);
   return 0;
 }
