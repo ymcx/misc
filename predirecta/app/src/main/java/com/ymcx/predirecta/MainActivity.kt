@@ -4,42 +4,27 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import android.app.AlertDialog
-import android.content.SharedPreferences
-import android.widget.EditText
 import androidx.browser.customtabs.CustomTabsIntent
 
 class MainActivity : AppCompatActivity() {
-    lateinit var sharedPref: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedPref = getPreferences(MODE_PRIVATE)
-        if (intent?.action == Intent.ACTION_VIEW) {
-            val oldUrl = intent.data.toString()
-            val address = sharedPref.getString(getString(R.string.url), null)
-            val parameters = oldUrl.substring(oldUrl.lastIndexOf('/')+1, oldUrl.length)
-            val url = if (oldUrl.startsWith("https://youtu.be", true)) {
-                Uri.parse("https://" + address + "/watch?v=" + parameters)
-            } else {
-                Uri.parse("https://" + address + "/"         + parameters)
-            }
-            CustomTabsIntent.Builder().setShareState(2).build().launchUrl(this, url)
-            finish()
+        val prefs = getPreferences(MODE_PRIVATE)
+        val instance = getString(R.string.instance)
+        if (intent.action == Intent.ACTION_SEND) {
+            val newInstance = intent.getStringExtra(Intent.EXTRA_TEXT)
+            val prefsEdit = prefs.edit()
+            prefsEdit.putString(instance, newInstance)
+            prefsEdit.apply()
         }
         else {
-            val builder = AlertDialog.Builder(this)
-            builder.apply {
-                val input = EditText(context)
-                builder.setView(input)
-                setPositiveButton("Save") { _, _ ->
-                    with(sharedPref.edit()) {
-                        putString(getString(R.string.url), input.text.toString())
-                        apply()
-                    }
-                    finish()
-                }
-            }
-            builder.show()
+            val url = intent.data.toString()
+            val instance = prefs.getString(instance, null)
+            val prefix = if (url.startsWith("https://youtu.be", true)) {"watch?v="} else {""}
+            val parameters = url.substring(url.lastIndexOf('/')+1, url.length)
+            val newUrl = Uri.parse(instance + prefix + parameters)
+            CustomTabsIntent.Builder().build().launchUrl(this, newUrl)
         }
+        finish()
     }
 }
