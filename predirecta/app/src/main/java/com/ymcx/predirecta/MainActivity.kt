@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsIntent
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(bundle: Bundle?) {
@@ -22,7 +23,7 @@ class MainActivity : AppCompatActivity() {
                 .replace(Regex("(.*)youtube.com/"), "https://"+instance+"/")
                 .replace(Regex("(.*)youtu.be/"),    "https://"+instance+"/watch?v=")
             )
-            startActivity(Intent(Intent.ACTION_VIEW, url))
+            CustomTabsIntent.Builder().build().launchUrl(this, url)
         }
         finish()
     }
