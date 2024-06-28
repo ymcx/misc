@@ -5,10 +5,9 @@ plugins {
 
 android {
     namespace = "com.ymcx.predirecta"
-    compileSdk = 35
+    compileSdk = 34
     defaultConfig {
         minSdk = 34
-        targetSdk = 35
     }
     buildTypes {
         release {
@@ -28,5 +27,4 @@ android {
 
 dependencies {
     implementation("com.google.android.material:material:+")
-    implementation("androidx.browser:browser:+")
 }
