@@ -11,20 +11,26 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(bundle)
         val prefs = getPreferences(MODE_PRIVATE)
         val prefsInstance = getString(R.string.instance)
-        if (intent.action == Intent.ACTION_SEND) {
-            with (prefs.edit()) {
-                putString(prefsInstance, intent.getStringExtra(Intent.EXTRA_TEXT))
-                apply()
+        var url = prefs.getString(prefsInstance, "redirect.invidious.io")
+        when (intent.action) {
+            Intent.ACTION_SEND -> {
+                url = intent.getStringExtra(Intent.EXTRA_TEXT).orEmpty()
+                    .replace("\"", "")
+                    .replace("http://", "")
+                    .replace("https://", "")
+                    .split("/")[0]
+                with (prefs.edit()) {
+                    putString(prefsInstance, url)
+                    apply()
+                }
+            }
+            Intent.ACTION_VIEW -> {
+                url = intent.getData().toString()
+                    .replace(Regex("(.*)youtube.com/"), url+"/")
+                    .replace(Regex("(.*)youtu.be/"),    url+"/watch?v=")
             }
         }
-        else {
-            val instance = prefs.getString(prefsInstance, "yewtu.be")
-            val url = Uri.parse(intent.getData().toString()
-                .replace(Regex("(.*)youtube.com/"), "https://"+instance+"/")
-                .replace(Regex("(.*)youtu.be/"),    "https://"+instance+"/watch?v=")
-            )
-            CustomTabsIntent.Builder().build().launchUrl(this, url)
-        }
+        CustomTabsIntent.Builder().build().launchUrl(this, Uri.parse("https://"+url))
         finish()
     }
 }
