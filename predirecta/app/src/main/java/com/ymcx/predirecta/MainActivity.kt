@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(bundle)
         val prefs = getPreferences(MODE_PRIVATE)
         val prefsInstance = getString(R.string.instance)
-        val instance = prefs.getString(prefsInstance, "redirect.invidious.io").orEmpty()
+        val instance = prefs.getString(prefsInstance, "redirect.invidious.io").orEmpty().replace(" ", "")
         when (intent.action) {
             Intent.ACTION_SEND -> {
                 val url = intent.getStringExtra(Intent.EXTRA_TEXT).orEmpty()
