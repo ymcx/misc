@@ -29,9 +29,6 @@ class MainActivity : AppCompatActivity() {
                     .replace(Regex("(m.youtube.com|www.youtube.com|youtube.com|youtu.be)"), instance)
                 openUrl(url)
             }
-            Intent.ACTION_MAIN -> {
-                openUrl("https://"+instance)
-            }
         }
         finish()
     }
