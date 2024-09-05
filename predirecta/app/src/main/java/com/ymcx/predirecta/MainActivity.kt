@@ -26,7 +26,8 @@ class MainActivity : AppCompatActivity() {
             }
             Intent.ACTION_VIEW -> {
                 val url = intent.getData().toString()
-                    .replace(Regex("(m.youtube.com|www.youtube.com|youtube.com|youtu.be)"), instance)
+                    .replace(Regex("(m.youtube.com|www.youtube.com|youtube.com|youtu.be)"), instance) +
+                    "&autoplay=1&volume=25&quality=dash&quality_dash=best"
                 openUrl(url)
             }
         }
