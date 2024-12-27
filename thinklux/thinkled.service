@@ -4,3 +4,6 @@ Description=Thinkled (service)
 [Service]
 Type=oneshot
 ExecStart=/usr/local/sbin/thinkled
+
+[Install]
+WantedBy=multi-user.target sleep.target
