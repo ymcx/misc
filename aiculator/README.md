@@ -1,3 +1,5 @@
+# AIculator
+
 ![Banner](./assets/banner.png)
 
 <br>
