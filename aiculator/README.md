@@ -4,6 +4,14 @@
 
 <br>
 
+### Description
+
+A simple terminal application that uses artificial intelligence to solve mathematical equations. It is based on Ollama, which you need to have installed to run the LLM locally.
+
+Inspired by [this project](https://github.com/Calvin-LL/CalcGPT.io) I found on Hacker News a while back.
+
+<br>
+
 ### It's not afraid to hallucinate
 
 ```shell
