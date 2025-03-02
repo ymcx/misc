@@ -37,14 +37,13 @@ fn last_number(string: String) -> String {
 }
 
 pub fn parse(args: Vec<String>) -> String {
-    let mut parsed = String::new();
+    let parsed = args[1..].join("");
 
-    for i in &args[1..] {
-        if i.parse::<f64>().is_ok() || "+-*/^()".contains(i) {
-            parsed += i;
-        } else {
-            panic!("Invalid arguments");
-        }
+    if parsed
+        .chars()
+        .any(|i| !i.is_ascii_digit() && !"+-*/^()., ".contains(i))
+    {
+        panic!("Invalid arguments");
     }
 
     return parsed;
