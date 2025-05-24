@@ -1,53 +1,26 @@
 # AIculator
 
-![Banner](./assets/banner.png)
-
-<br>
-
-### Description
-
-A simple terminal application that uses artificial intelligence to solve mathematical equations. It is based on Ollama, which you need to have installed to run the LLM locally.
+A calculator that uses a locally hosted LLM instead of traditional arithmetic methods to solve mathematical expressions. Written in Rust with GTK4 and Libadwaita.
 
 Inspired by [this project](https://github.com/Calvin-LL/CalcGPT.io) I found on Hacker News a while back.
 
-<br>
+# Installation
 
-### It's not afraid to hallucinate
+First, you'll need to have Ollama installed, as AIculator uses it to communicate with the LLM.
 
-```shell
-$ ollama serve &
-$ ./AIculator 2 + 2 / 2 | cowsay
- ____________________
-< 1.5707963267948966 >
- --------------------
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\/\
-                ||----w |
-                ||     ||
 ```
- 
-<br>
-
-### Every answer is unique
-
-```shell
-$ ./AIculator 2 + 2 / 2 | cowsay
- ___
-< 2 >
- ---
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\/\
-                ||----w |
-                ||     ||
+ollama pull tinyllama
+ollama serve &
 ```
 
-<br>
+Clone and compile AIculator.
 
-### Breathtaking ~~efficiency~~ SPEED
+```
+git clone https://github.com/ymcx/aiculator
+cd aiculator
+cargo run --release
+```
 
-Time measured using GNU AWK's time utility
-|echo "$((20+5))"|AIculator 20 + 5|
-|----------------|----------------|
-|0m0.000s        |0m11.041s       |
+# Screenshot
+
+![Screenshot](./assets/screenshot.png)
