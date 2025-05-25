@@ -8,10 +8,6 @@ use gtk4::{
 };
 use libadwaita::{Application, ApplicationWindow};
 
-fn inverse(equation: &str) -> String {
-    format!("-{}", equation)
-}
-
 fn concat(equation: &str, char: &str) -> String {
     format!("{}{}", equation, char)
 }
@@ -65,7 +61,6 @@ fn add_action(label: &str, button: &Button, entry: &Entry, history: &ListBox) {
         MainContext::default().spawn_local(async move {
             let text = match label.as_str() {
                 "C" => String::default(),
-                "±" => inverse(&text),
                 "=" => request(&text, &history).await,
                 _ => concat(&text, &label),
             };
@@ -119,8 +114,8 @@ pub fn build(application: &Application) {
     history_window.set_child(Some(&history));
 
     buttons.attach(&button("C", &entry, &history), 0 * s, 0 * s, 1 * s, 1 * s);
-    buttons.attach(&button("±", &entry, &history), 1 * s, 0 * s, 1 * s, 1 * s);
-    buttons.attach(&button("%", &entry, &history), 2 * s, 0 * s, 1 * s, 1 * s);
+    buttons.attach(&button("√", &entry, &history), 1 * s, 0 * s, 1 * s, 1 * s);
+    buttons.attach(&button("^", &entry, &history), 2 * s, 0 * s, 1 * s, 1 * s);
     buttons.attach(&button("÷", &entry, &history), 3 * s, 0 * s, 1 * s, 1 * s);
 
     buttons.attach(&button("7", &entry, &history), 0 * s, 1 * s, 1 * s, 1 * s);
