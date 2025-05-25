@@ -1,9 +1,10 @@
 use crate::SIZE;
 use gtk4::{
-    Button, CssProvider, Entry, Grid, STYLE_PROVIDER_PRIORITY_APPLICATION,
+    Box, Button, CssProvider, Entry, Grid, HeaderBar, Orientation,
+    STYLE_PROVIDER_PRIORITY_APPLICATION,
     gdk::Display,
     glib::MainContext,
-    prelude::{ButtonExt, EditableExt, GridExt, GtkWindowExt, WidgetExt},
+    prelude::{BoxExt, ButtonExt, EditableExt, GridExt, GtkWindowExt, WidgetExt},
 };
 use libadwaita::{Application, ApplicationWindow};
 
@@ -73,6 +74,7 @@ fn button(label: &str, entry: &Entry) -> Button {
 }
 
 pub fn build(application: &Application) {
+    let header = HeaderBar::default();
     let entry = Entry::builder()
         .margin_top(4 * SIZE)
         .margin_bottom(2 * SIZE)
@@ -80,12 +82,12 @@ pub fn build(application: &Application) {
         .margin_end(4 * SIZE)
         .build();
     let buttons = Grid::builder()
-        .margin_top(2 * SIZE - SIZE)
-        .margin_bottom(4 * SIZE - SIZE)
-        .margin_start(4 * SIZE - SIZE)
-        .margin_end(4 * SIZE - SIZE)
+        .margin_top(1 * SIZE)
+        .margin_bottom(3 * SIZE)
+        .margin_start(3 * SIZE)
+        .margin_end(3 * SIZE)
         .build();
-    let grid = Grid::default();
+    let content = Box::new(Orientation::Vertical, 0);
 
     buttons.attach(&button("C", &entry), 0 * SIZE, 0 * SIZE, 1 * SIZE, 1 * SIZE);
     buttons.attach(&button("±", &entry), 1 * SIZE, 0 * SIZE, 1 * SIZE, 1 * SIZE);
@@ -111,15 +113,16 @@ pub fn build(application: &Application) {
     buttons.attach(&button(".", &entry), 2 * SIZE, 4 * SIZE, 1 * SIZE, 1 * SIZE);
     buttons.attach(&button("=", &entry), 3 * SIZE, 4 * SIZE, 1 * SIZE, 1 * SIZE);
 
-    grid.attach(&entry, 0 * SIZE, 0 * SIZE, 1 * SIZE, 1 * SIZE);
-    grid.attach(&buttons, 0 * SIZE, 1 * SIZE, 1 * SIZE, 1 * SIZE);
+    content.append(&header);
+    content.append(&entry);
+    content.append(&buttons);
 
     ApplicationWindow::builder()
         .application(application)
         .width_request(1)
         .height_request(1)
-        .title("Aiculator")
-        .content(&grid)
+        .title("AIculator")
+        .content(&content)
         .build()
         .present();
 }
