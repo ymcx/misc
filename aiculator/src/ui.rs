@@ -47,11 +47,7 @@ async fn request(equation: &str, history: &ListBox) -> String {
     response.0
 }
 
-fn add_action(label: &str, button: &Button, entry: &Entry, history: &ListBox) {
-    let entry = entry.clone();
-    let history = history.clone();
-    let label = label.to_string();
-
+fn add_action(label: String, button: &Button, entry: Entry, history: ListBox) {
     button.connect_clicked(move |_| {
         let entry = entry.clone();
         let history = history.clone();
@@ -81,7 +77,7 @@ fn button(label: &str, entry: &Entry, history: &ListBox) -> Button {
     button.set_hexpand(true);
 
     add_css(label, &button);
-    add_action(label, &button, &entry, &history);
+    add_action(label.to_string(), &button, entry.clone(), history.clone());
 
     button
 }
