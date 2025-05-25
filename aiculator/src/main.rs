@@ -2,7 +2,7 @@ use gtk4::gio::prelude::{ApplicationExt, ApplicationExtManual};
 use libadwaita::Application;
 
 const MODEL: &str = "tinyllama";
-const MARGIN: i32 = 32;
+const SIZE: i32 = 2;
 
 mod handler;
 mod ui;

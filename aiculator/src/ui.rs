@@ -1,4 +1,4 @@
-use crate::MARGIN;
+use crate::SIZE;
 use gtk4::{
     Button, Entry, Grid,
     glib::MainContext,
@@ -17,10 +17,10 @@ fn concat(equation: &str, char: &str) -> String {
 fn button(label: &str, entry: &Entry) -> Button {
     let button = Button::builder()
         .label(label)
-        .margin_top(MARGIN)
-        .margin_bottom(MARGIN)
-        .margin_start(MARGIN)
-        .margin_end(MARGIN)
+        .margin_top(SIZE)
+        .margin_bottom(SIZE)
+        .margin_start(SIZE)
+        .margin_end(SIZE)
         .build();
 
     let entry = entry.clone();
@@ -48,50 +48,50 @@ fn button(label: &str, entry: &Entry) -> Button {
 
 pub fn build(application: &Application) {
     let entry = Entry::builder()
-        .margin_top(MARGIN)
-        .margin_bottom(MARGIN)
-        .margin_start(MARGIN)
-        .margin_end(MARGIN)
+        .margin_top(4 * SIZE)
+        .margin_bottom(2 * SIZE)
+        .margin_start(4 * SIZE)
+        .margin_end(4 * SIZE)
         .build();
-
-    let buttons = Grid::default();
-
-    buttons.attach(&button("C", &entry), 0, 0, 10, 10);
-    buttons.attach(&button("±", &entry), 10, 0, 10, 10);
-    buttons.attach(&button("%", &entry), 20, 0, 10, 10);
-    buttons.attach(&button("÷", &entry), 30, 0, 10, 10);
-
-    buttons.attach(&button("7", &entry), 0, 10, 10, 10);
-    buttons.attach(&button("8", &entry), 10, 10, 10, 10);
-    buttons.attach(&button("9", &entry), 20, 10, 10, 10);
-    buttons.attach(&button("×", &entry), 30, 10, 10, 10);
-
-    buttons.attach(&button("4", &entry), 0, 20, 10, 10);
-    buttons.attach(&button("5", &entry), 10, 20, 10, 10);
-    buttons.attach(&button("6", &entry), 20, 20, 10, 10);
-    buttons.attach(&button("-", &entry), 30, 20, 10, 10);
-
-    buttons.attach(&button("1", &entry), 0, 30, 10, 10);
-    buttons.attach(&button("2", &entry), 10, 30, 10, 10);
-    buttons.attach(&button("3", &entry), 20, 30, 10, 10);
-    buttons.attach(&button("+", &entry), 30, 30, 10, 10);
-
-    buttons.attach(&button("0", &entry), 0, 40, 20, 10);
-    buttons.attach(&button(".", &entry), 20, 40, 10, 10);
-    buttons.attach(&button("=", &entry), 30, 40, 10, 10);
-
-    let grid = Grid::builder()
-        .margin_top(MARGIN)
-        .margin_bottom(MARGIN)
-        .margin_start(MARGIN)
-        .margin_end(MARGIN)
+    let buttons = Grid::builder()
+        .margin_top(2 * SIZE - SIZE)
+        .margin_bottom(4 * SIZE - SIZE)
+        .margin_start(4 * SIZE - SIZE)
+        .margin_end(4 * SIZE - SIZE)
         .build();
+    let grid = Grid::default();
 
-    grid.attach(&entry, 0, 0, 40, 10);
-    grid.attach(&buttons, 0, 10, 40, 50);
+    buttons.attach(&button("C", &entry), 0 * SIZE, 0 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("±", &entry), 1 * SIZE, 0 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("%", &entry), 2 * SIZE, 0 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("÷", &entry), 3 * SIZE, 0 * SIZE, 1 * SIZE, 1 * SIZE);
+
+    buttons.attach(&button("7", &entry), 0 * SIZE, 1 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("8", &entry), 1 * SIZE, 1 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("9", &entry), 2 * SIZE, 1 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("×", &entry), 3 * SIZE, 1 * SIZE, 1 * SIZE, 1 * SIZE);
+
+    buttons.attach(&button("4", &entry), 0 * SIZE, 2 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("5", &entry), 1 * SIZE, 2 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("6", &entry), 2 * SIZE, 2 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("-", &entry), 3 * SIZE, 2 * SIZE, 1 * SIZE, 1 * SIZE);
+
+    buttons.attach(&button("1", &entry), 0 * SIZE, 3 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("2", &entry), 1 * SIZE, 3 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("3", &entry), 2 * SIZE, 3 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("+", &entry), 3 * SIZE, 3 * SIZE, 1 * SIZE, 1 * SIZE);
+
+    buttons.attach(&button("0", &entry), 0 * SIZE, 4 * SIZE, 2 * SIZE, 1 * SIZE);
+    buttons.attach(&button(".", &entry), 2 * SIZE, 4 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("=", &entry), 3 * SIZE, 4 * SIZE, 1 * SIZE, 1 * SIZE);
+
+    grid.attach(&entry, 0 * SIZE, 0 * SIZE, 1 * SIZE, 1 * SIZE);
+    grid.attach(&buttons, 0 * SIZE, 1 * SIZE, 1 * SIZE, 1 * SIZE);
 
     ApplicationWindow::builder()
         .application(application)
+        .width_request(1)
+        .height_request(1)
         .title("Aiculator")
         .content(&grid)
         .build()
