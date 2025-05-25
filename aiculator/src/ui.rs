@@ -1,6 +1,6 @@
 use crate::SIZE;
 use gtk4::{
-    Box, Button, CssProvider, Entry, Grid, HeaderBar, Orientation,
+    Box, Button, CssProvider, Entry, Grid, HeaderBar, Label, ListBox, Orientation,
     STYLE_PROVIDER_PRIORITY_APPLICATION,
     gdk::Display,
     glib::MainContext,
@@ -36,12 +36,25 @@ fn add_css(label: &str, button: &Button) {
     };
 }
 
-fn add_action(label: &str, button: &Button, entry: &Entry) {
+async fn request(equation: &str, history: &ListBox) -> String {
+    let response = crate::handler::request(equation).await;
+
+    let text = format!("{} = {}", equation, response);
+    let entry = Label::new(Some(&text));
+    entry.set_xalign(0.0);
+    history.append(&entry);
+
+    response
+}
+
+fn add_action(label: &str, button: &Button, entry: &Entry, history: &ListBox) {
     let entry = entry.clone();
+    let history = history.clone();
     let label = label.to_string();
 
     button.connect_clicked(move |_| {
         let entry = entry.clone();
+        let history = history.clone();
         let label = label.clone();
         let text = entry.text();
 
@@ -49,7 +62,7 @@ fn add_action(label: &str, button: &Button, entry: &Entry) {
             let text = match label.as_str() {
                 "C" => String::default(),
                 "±" => inverse(&text),
-                "=" => crate::handler::request(&text).await,
+                "=" => request(&text, &history).await,
                 _ => concat(&text, &label),
             };
 
@@ -58,7 +71,7 @@ fn add_action(label: &str, button: &Button, entry: &Entry) {
     });
 }
 
-fn button(label: &str, entry: &Entry) -> Button {
+fn button(label: &str, entry: &Entry, history: &ListBox) -> Button {
     let button = Button::builder()
         .label(label)
         .margin_top(SIZE)
@@ -66,17 +79,26 @@ fn button(label: &str, entry: &Entry) -> Button {
         .margin_start(SIZE)
         .margin_end(SIZE)
         .build();
+    button.set_hexpand(true);
 
     add_css(label, &button);
-    add_action(label, &button, &entry);
+    add_action(label, &button, &entry, &history);
 
     button
 }
 
 pub fn build(application: &Application) {
+    let s = SIZE;
     let header = HeaderBar::default();
-    let entry = Entry::builder()
+    let history = ListBox::builder()
         .margin_top(4 * SIZE)
+        .margin_bottom(2 * SIZE)
+        .margin_start(4 * SIZE)
+        .margin_end(4 * SIZE)
+        .build();
+    history.set_vexpand(true);
+    let entry = Entry::builder()
+        .margin_top(2 * SIZE)
         .margin_bottom(2 * SIZE)
         .margin_start(4 * SIZE)
         .margin_end(4 * SIZE)
@@ -89,38 +111,39 @@ pub fn build(application: &Application) {
         .build();
     let content = Box::new(Orientation::Vertical, 0);
 
-    buttons.attach(&button("C", &entry), 0 * SIZE, 0 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("±", &entry), 1 * SIZE, 0 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("%", &entry), 2 * SIZE, 0 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("÷", &entry), 3 * SIZE, 0 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("C", &entry, &history), 0 * s, 0 * s, 1 * s, 1 * s);
+    buttons.attach(&button("±", &entry, &history), 1 * s, 0 * s, 1 * s, 1 * s);
+    buttons.attach(&button("%", &entry, &history), 2 * s, 0 * s, 1 * s, 1 * s);
+    buttons.attach(&button("÷", &entry, &history), 3 * s, 0 * s, 1 * s, 1 * s);
 
-    buttons.attach(&button("7", &entry), 0 * SIZE, 1 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("8", &entry), 1 * SIZE, 1 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("9", &entry), 2 * SIZE, 1 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("×", &entry), 3 * SIZE, 1 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("7", &entry, &history), 0 * s, 1 * s, 1 * s, 1 * s);
+    buttons.attach(&button("8", &entry, &history), 1 * s, 1 * s, 1 * s, 1 * s);
+    buttons.attach(&button("9", &entry, &history), 2 * s, 1 * s, 1 * s, 1 * s);
+    buttons.attach(&button("×", &entry, &history), 3 * s, 1 * s, 1 * s, 1 * s);
 
-    buttons.attach(&button("4", &entry), 0 * SIZE, 2 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("5", &entry), 1 * SIZE, 2 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("6", &entry), 2 * SIZE, 2 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("-", &entry), 3 * SIZE, 2 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("4", &entry, &history), 0 * s, 2 * s, 1 * s, 1 * s);
+    buttons.attach(&button("5", &entry, &history), 1 * s, 2 * s, 1 * s, 1 * s);
+    buttons.attach(&button("6", &entry, &history), 2 * s, 2 * s, 1 * s, 1 * s);
+    buttons.attach(&button("-", &entry, &history), 3 * s, 2 * s, 1 * s, 1 * s);
 
-    buttons.attach(&button("1", &entry), 0 * SIZE, 3 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("2", &entry), 1 * SIZE, 3 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("3", &entry), 2 * SIZE, 3 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("+", &entry), 3 * SIZE, 3 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("1", &entry, &history), 0 * s, 3 * s, 1 * s, 1 * s);
+    buttons.attach(&button("2", &entry, &history), 1 * s, 3 * s, 1 * s, 1 * s);
+    buttons.attach(&button("3", &entry, &history), 2 * s, 3 * s, 1 * s, 1 * s);
+    buttons.attach(&button("+", &entry, &history), 3 * s, 3 * s, 1 * s, 1 * s);
 
-    buttons.attach(&button("0", &entry), 0 * SIZE, 4 * SIZE, 2 * SIZE, 1 * SIZE);
-    buttons.attach(&button(".", &entry), 2 * SIZE, 4 * SIZE, 1 * SIZE, 1 * SIZE);
-    buttons.attach(&button("=", &entry), 3 * SIZE, 4 * SIZE, 1 * SIZE, 1 * SIZE);
+    buttons.attach(&button("0", &entry, &history), 0 * s, 4 * s, 2 * s, 1 * s);
+    buttons.attach(&button(".", &entry, &history), 2 * s, 4 * s, 1 * s, 1 * s);
+    buttons.attach(&button("=", &entry, &history), 3 * s, 4 * s, 1 * s, 1 * s);
 
     content.append(&header);
+    content.append(&history);
     content.append(&entry);
     content.append(&buttons);
 
     ApplicationWindow::builder()
         .application(application)
-        .width_request(1)
-        .height_request(1)
+        .width_request(240)
+        .height_request(426)
         .title("AIculator")
         .content(&content)
         .build()
