@@ -1,7 +1,7 @@
 use crate::SIZE;
 use gtk4::{
     Box, Button, CssProvider, Entry, Grid, HeaderBar, Label, ListBox, Orientation,
-    STYLE_PROVIDER_PRIORITY_APPLICATION,
+    STYLE_PROVIDER_PRIORITY_APPLICATION, ScrolledWindow,
     gdk::Display,
     glib::MainContext,
     prelude::{BoxExt, ButtonExt, EditableExt, GridExt, GtkWindowExt, WidgetExt},
@@ -39,12 +39,16 @@ fn add_css(label: &str, button: &Button) {
 async fn request(equation: &str, history: &ListBox) -> String {
     let response = crate::handler::request(equation).await;
 
-    let text = format!("{} = {}", equation, response);
+    let text = if response.1 {
+        format!("{} = {}", equation, response.0)
+    } else {
+        format!("{}", response.0)
+    };
     let entry = Label::new(Some(&text));
     entry.set_xalign(0.0);
     history.append(&entry);
 
-    response
+    response.0
 }
 
 fn add_action(label: &str, button: &Button, entry: &Entry, history: &ListBox) {
@@ -96,7 +100,6 @@ pub fn build(application: &Application) {
         .margin_start(4 * SIZE)
         .margin_end(4 * SIZE)
         .build();
-    history.set_vexpand(true);
     let entry = Entry::builder()
         .margin_top(2 * SIZE)
         .margin_bottom(2 * SIZE)
@@ -109,7 +112,11 @@ pub fn build(application: &Application) {
         .margin_start(3 * SIZE)
         .margin_end(3 * SIZE)
         .build();
+    let history_window = ScrolledWindow::default();
     let content = Box::new(Orientation::Vertical, 0);
+
+    history_window.set_vexpand(true);
+    history_window.set_child(Some(&history));
 
     buttons.attach(&button("C", &entry, &history), 0 * s, 0 * s, 1 * s, 1 * s);
     buttons.attach(&button("±", &entry, &history), 1 * s, 0 * s, 1 * s, 1 * s);
@@ -136,7 +143,7 @@ pub fn build(application: &Application) {
     buttons.attach(&button("=", &entry, &history), 3 * s, 4 * s, 1 * s, 1 * s);
 
     content.append(&header);
-    content.append(&history);
+    content.append(&history_window);
     content.append(&entry);
     content.append(&buttons);
 
