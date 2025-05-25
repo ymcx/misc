@@ -1,8 +1,9 @@
 use crate::SIZE;
 use gtk4::{
-    Button, Entry, Grid,
+    Button, CssProvider, Entry, Grid, STYLE_PROVIDER_PRIORITY_APPLICATION,
+    gdk::Display,
     glib::MainContext,
-    prelude::{ButtonExt, EditableExt, GridExt, GtkWindowExt},
+    prelude::{ButtonExt, EditableExt, GridExt, GtkWindowExt, WidgetExt},
 };
 use libadwaita::{Application, ApplicationWindow};
 
@@ -14,15 +15,27 @@ fn concat(equation: &str, char: &str) -> String {
     format!("{}{}", equation, char)
 }
 
-fn button(label: &str, entry: &Entry) -> Button {
-    let button = Button::builder()
-        .label(label)
-        .margin_top(SIZE)
-        .margin_bottom(SIZE)
-        .margin_start(SIZE)
-        .margin_end(SIZE)
-        .build();
+fn add_css(label: &str, button: &Button) {
+    let provider = CssProvider::default();
+    provider.load_from_data(
+        ".raised        { background: alpha(@view_fg_color, 0.20); }
+         .raised:hover  { background: alpha(@view_fg_color, 0.25); }
+         .raised:active { background: alpha(@view_fg_color, 0.35); }",
+    );
+    gtk4::style_context_add_provider_for_display(
+        &Display::default().unwrap(),
+        &provider,
+        STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
 
+    match label {
+        "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => button.add_css_class("raised"),
+        "=" => button.add_css_class("suggested-action"),
+        _ => {}
+    };
+}
+
+fn add_action(label: &str, button: &Button, entry: &Entry) {
     let entry = entry.clone();
     let label = label.to_string();
 
@@ -42,6 +55,19 @@ fn button(label: &str, entry: &Entry) -> Button {
             entry.set_text(&text);
         });
     });
+}
+
+fn button(label: &str, entry: &Entry) -> Button {
+    let button = Button::builder()
+        .label(label)
+        .margin_top(SIZE)
+        .margin_bottom(SIZE)
+        .margin_start(SIZE)
+        .margin_end(SIZE)
+        .build();
+
+    add_css(label, &button);
+    add_action(label, &button, &entry);
 
     button
 }
