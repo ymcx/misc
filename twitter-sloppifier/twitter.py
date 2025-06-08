@@ -40,8 +40,13 @@ class Twitter:
         name = popup.find_element(By.XPATH, name_body).text
         tweet = popup.find_element(By.XPATH, tweet_body).text
         tweet = re.sub(r"\bhttp\S*", "", tweet).strip()
-        if len(tweet) < 80 or name.__contains__(self.username):
-            print(len(tweet) < 80, name.__contains__(self.username))
+
+        if len(tweet) < 80:
+            print(f"Too short Tweet ({len(tweet)} chars)")
+            return
+
+        if name.__contains__(self.username):
+            print("Can't reply to yourself")
             return
 
         return tweet
@@ -76,12 +81,10 @@ class Twitter:
 
         tweet = self.__get_tweet_text()
         if not tweet:
-            print("Invalid tweet")
             return self.__close()
 
         reply = self.llm.query(tweet)
         if not reply:
-            print("Invalid reply")
             return self.__close()
 
         self.__type(reply)

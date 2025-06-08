@@ -23,18 +23,24 @@ class LLM:
                 {"role": "system", "content": instructions},
                 {"role": "user", "content": prompt},
             ]
-            response = self.openai.chat.completions.create(
-                messages=messages,
-                model=model,
-                temperature=temperature,
-                top_p=top_p,
+            response = (
+                self.openai.chat.completions.create(
+                    messages=messages,
+                    model=model,
+                    temperature=temperature,
+                    top_p=top_p,
+                )
+                .choices[0]
+                .message.content
             )
-            response = response.choices[0].message.content
+
             if not response:
+                print("Invalid reply from LLM")
                 return
 
             response = response.replace("—", ": ")
             if len(response) < 270:
+                print(f"Too long reply ({len(response)} chars) from LLM")
                 return response
 
         except BadRequestError:
