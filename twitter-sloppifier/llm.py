@@ -1,3 +1,4 @@
+from sleep import Amount
 from openai import OpenAI, BadRequestError, RateLimitError
 import time
 
@@ -48,5 +49,5 @@ class LLM:
             return (False, "LLM:\tBad request")
 
         except RateLimitError:
-            time.sleep(60)
+            time.sleep(Amount.RATE_LIMIT)
             return (False, "LLM:\tRate limit exceeded")

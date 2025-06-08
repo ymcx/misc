@@ -1,16 +1,9 @@
+from sleep import Amount
 from tweet import Tweet
 from llm import LLM
 from selenium.webdriver import ActionChains, Chrome, Keys
 from selenium.webdriver.common.by import By
 import time
-
-
-class Amount:
-    URL_LOAD = 3
-    USER_TO_PASS = 1
-    PASS_TO_HOME = 6
-    TWEET_OPEN = 1
-    TWEET_SEND = 3
 
 
 class Twitter:
@@ -79,4 +72,3 @@ class Twitter:
             return self.close()
 
         self.send_tweet(response)
-        time.sleep(Amount.TWEET_SEND)
