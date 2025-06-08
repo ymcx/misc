@@ -3,7 +3,7 @@ from openai.types.chat import ChatCompletionMessageParam
 import time
 
 base_url = "https://models.github.ai/inference"
-model = "openai/gpt-4.1-mini"
+model = "xai/grok-3-mini"
 temperature = 1.0
 top_p = 1.0
 instructions = (
@@ -39,6 +39,7 @@ class LLM:
                 print("Invalid reply from LLM")
                 return
 
+            response = response.encode("ascii", "ignore").decode("ascii")
             response = response.replace("—", ": ")
             if 280 < len(response):
                 print(f"Too long reply ({len(response)} chars) from LLM")

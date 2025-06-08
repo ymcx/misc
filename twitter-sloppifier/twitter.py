@@ -22,16 +22,13 @@ class Twitter:
     def __confirm(self) -> None:
         self.__type(Keys.ENTER)
 
-    def __open_tweet(self) -> None:
+    def __open_focused_tweet(self) -> None:
         self.__type("r")
 
-    def __focus_next(self) -> None:
+    def __focus_next_tweet(self) -> None:
         self.__type("j")
 
-    def __get_input_field(self) -> WebElement:
-        return self.chrome.find_element(By.XPATH, "//input")
-
-    def __get_tweet_text(self) -> str | None:
+    def get_tweet_text(self) -> str | None:
         popup_body = "//div[@aria-labelledby='modal-header']"
         tweet_body = "//div[@data-testid='tweetText']"
         name_body = "//div[@data-testid='User-Name']"
@@ -51,10 +48,7 @@ class Twitter:
 
         return tweet
 
-    def __open_login_page(self) -> None:
-        self.chrome.get("https://x.com/i/flow/login")
-
-    def __send_tweet(self) -> None:
+    def send_tweet(self) -> None:
         action = (
             ActionChains(self.chrome)
             .key_down(Keys.CONTROL)
@@ -64,10 +58,10 @@ class Twitter:
         action.perform()
 
     def login(self) -> None:
-        self.__open_login_page()
+        self.chrome.get("https://x.com/i/flow/login")
         time.sleep(3)
 
-        self.__get_input_field().send_keys(self.username)
+        self.chrome.find_element(By.XPATH, "//input").send_keys(self.username)
         self.__confirm()
         time.sleep(1)
 
@@ -76,10 +70,10 @@ class Twitter:
         time.sleep(6)
 
     def next(self) -> None:
-        self.__focus_next()
-        self.__open_tweet()
+        self.__focus_next_tweet()
+        self.__open_focused_tweet()
 
-        tweet = self.__get_tweet_text()
+        tweet = self.get_tweet_text()
         if not tweet:
             return self.__close()
 
@@ -88,7 +82,7 @@ class Twitter:
             return self.__close()
 
         self.__type(reply)
-        self.__send_tweet()
+        self.send_tweet()
         time.sleep(3)
 
     def refresh(self) -> None:
