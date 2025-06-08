@@ -32,14 +32,19 @@ class Twitter:
         return self.chrome.find_element(By.XPATH, "//input")
 
     def __get_tweet_text(self) -> str | None:
-        popup = "//div[@aria-labelledby='modal-header']"
-        body = "//div[@data-testid='tweetText']"
-        element = self.chrome.find_element(By.XPATH, popup).find_element(By.XPATH, body)
-        text = re.sub(r"http\S*", "", element.text).strip()
-        if len(text) < 80:
+        popup_body = "//div[@aria-labelledby='modal-header']"
+        tweet_body = "//div[@data-testid='tweetText']"
+        name_body = "//div[@data-testid='User-Name']"
+
+        popup = self.chrome.find_element(By.XPATH, popup_body)
+        name = popup.find_element(By.XPATH, name_body).text
+        tweet = popup.find_element(By.XPATH, tweet_body).text
+        tweet = re.sub(r"\bhttp\S*", "", tweet).strip()
+        if len(tweet) < 80 or name.__contains__(self.username):
+            print(len(tweet) < 80, name.__contains__(self.username))
             return
 
-        return text
+        return tweet
 
     def __open_login_page(self) -> None:
         self.chrome.get("https://x.com/i/flow/login")
