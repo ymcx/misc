@@ -39,9 +39,11 @@ class LLM:
                 return
 
             response = response.replace("—", ": ")
-            if len(response) < 270:
+            if 280 < len(response):
                 print(f"Too long reply ({len(response)} chars) from LLM")
-                return response
+                return
+
+            return response
 
         except BadRequestError:
             return
