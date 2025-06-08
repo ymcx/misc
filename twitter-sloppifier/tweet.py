@@ -44,7 +44,6 @@ class Tweet:
         self.popup = self.get_popup()
 
         username = self.popup.find_element(By.XPATH, ELEMENT_NAME).text
-        username = username.replace("Replying to @", "")
 
         self.username = username
         return self.username
@@ -57,7 +56,7 @@ class Tweet:
         if text_cur_len < text_min_len:
             return (False, f"Tweet:\tInvalid length ({text_cur_len} < {text_min_len})")
 
-        if self.username == username:
+        if self.username.__contains__(username):
             return (False, "Tweet:\tCan't reply to yourself")
 
         return (True, None)
