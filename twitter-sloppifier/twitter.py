@@ -3,6 +3,7 @@ from selenium.webdriver import ActionChains, Chrome, Keys
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 import time
+import re
 
 
 class Twitter:
@@ -30,11 +31,15 @@ class Twitter:
     def __get_input_field(self) -> WebElement:
         return self.chrome.find_element(By.XPATH, "//input")
 
-    def __get_tweet_text(self) -> str:
+    def __get_tweet_text(self) -> str | None:
         popup = "//div[@aria-labelledby='modal-header']"
         body = "//div[@data-testid='tweetText']"
         element = self.chrome.find_element(By.XPATH, popup).find_element(By.XPATH, body)
-        return element.text
+        text = re.sub(r"http\S*", "", element.text).strip()
+        if len(text) < 80:
+            return
+
+        return text
 
     def __open_login_page(self) -> None:
         self.chrome.get("https://x.com/i/flow/login")
@@ -65,11 +70,18 @@ class Twitter:
         self.__open_tweet()
 
         tweet = self.__get_tweet_text()
+        if not tweet:
+            print("Invalid tweet")
+            return self.__close()
+
         reply = self.llm.query(tweet)
         if not reply:
-            print("Err")
+            print("Invalid reply")
             return self.__close()
 
         self.__type(reply)
         self.__send_tweet()
         time.sleep(3)
+
+    def refresh(self) -> None:
+        self.__type(".")

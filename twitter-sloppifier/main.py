@@ -15,8 +15,10 @@ def main() -> None:
     twitter = Twitter(llm, chrome, username, password)
 
     twitter.login()
-    for _ in range(10):
-        twitter.next()
+    while True:
+        for _ in range(10):
+            twitter.next()
+        twitter.refresh()
 
 
 if __name__ == "__main__":
