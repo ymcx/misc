@@ -1,5 +1,6 @@
-from openai import OpenAI, BadRequestError
+from openai import OpenAI, BadRequestError, RateLimitError
 from openai.types.chat import ChatCompletionMessageParam
+import time
 
 base_url = "https://models.github.ai/inference"
 model = "openai/gpt-4.1-mini"
@@ -46,4 +47,10 @@ class LLM:
             return response
 
         except BadRequestError:
+            print("Bad request")
+            return
+
+        except RateLimitError:
+            print("LLM rate limit exceeded")
+            time.sleep(60)
             return
