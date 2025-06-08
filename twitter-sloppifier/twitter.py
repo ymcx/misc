@@ -1,9 +1,16 @@
+from tweet import Tweet
 from llm import LLM
 from selenium.webdriver import ActionChains, Chrome, Keys
-from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 import time
-import re
+
+
+class Amount:
+    URL_LOAD = 3
+    USER_TO_PASS = 1
+    PASS_TO_HOME = 6
+    TWEET_OPEN = 1
+    TWEET_SEND = 3
 
 
 class Twitter:
@@ -13,77 +20,63 @@ class Twitter:
         self.username = username
         self.password = password
 
-    def __type(self, text: str) -> None:
+    def type(self, text: str) -> None:
         self.chrome.switch_to.active_element.send_keys(text)
 
-    def __close(self) -> None:
-        self.__type(Keys.ESCAPE)
+    def close(self) -> None:
+        self.type(Keys.ESCAPE)
 
-    def __confirm(self) -> None:
-        self.__type(Keys.ENTER)
+    def confirm(self) -> None:
+        self.type(Keys.ENTER)
 
-    def __open_focused_tweet(self) -> None:
-        self.__type("r")
+    def refresh(self) -> None:
+        self.type(".")
 
-    def __focus_next_tweet(self) -> None:
-        self.__type("j")
+    def open_focused_tweet(self) -> None:
+        self.type("r")
 
-    def get_tweet_text(self) -> str | None:
-        popup_body = "//div[@aria-labelledby='modal-header']"
-        tweet_body = "//div[@data-testid='tweetText']"
-        name_body = "//div[@data-testid='User-Name']"
+    def focus_next_tweet(self) -> None:
+        self.type("j")
 
-        popup = self.chrome.find_element(By.XPATH, popup_body)
-        name = popup.find_element(By.XPATH, name_body).text
-        tweet = popup.find_element(By.XPATH, tweet_body).text
-        tweet = re.sub(r"\bhttp\S*", "", tweet).strip()
-
-        if len(tweet) < 80:
-            print(f"Too short Tweet ({len(tweet)} chars)")
-            return
-
-        if name.__contains__(self.username):
-            print("Can't reply to yourself")
-            return
-
-        return tweet
-
-    def send_tweet(self) -> None:
-        action = (
+    def send_tweet(self, text: str) -> None:
+        send = (
             ActionChains(self.chrome)
             .key_down(Keys.CONTROL)
             .send_keys(Keys.ENTER)
             .key_up(Keys.CONTROL)
         )
-        action.perform()
+
+        self.type(text)
+        send.perform()
 
     def login(self) -> None:
         self.chrome.get("https://x.com/i/flow/login")
-        time.sleep(3)
+        time.sleep(Amount.URL_LOAD)
 
-        self.chrome.find_element(By.XPATH, "//input").send_keys(self.username)
-        self.__confirm()
-        time.sleep(1)
+        self.chrome.find_element(By.CSS_SELECTOR, "input").send_keys(self.username)
+        self.confirm()
+        time.sleep(Amount.USER_TO_PASS)
 
-        self.__type(self.password)
-        self.__confirm()
-        time.sleep(6)
+        self.type(self.password)
+        self.confirm()
+        time.sleep(Amount.PASS_TO_HOME)
 
     def next(self) -> None:
-        self.__focus_next_tweet()
-        self.__open_focused_tweet()
+        self.focus_next_tweet()
+        self.open_focused_tweet()
+        time.sleep(Amount.TWEET_OPEN)
 
-        tweet = self.get_tweet_text()
-        if not tweet:
-            return self.__close()
+        tweet = Tweet(self.chrome)
+        valid, error_message = tweet.is_valid(self.username)
+        if not valid:
+            print(error_message)
+            return self.close()
 
-        reply = self.llm.query(tweet)
-        if not reply:
-            return self.__close()
+        text = tweet.get_text()
+        valid, response = self.llm.query(text)
+        if not valid:
+            print(response)
+            return self.close()
 
-        self.__type(reply)
-        self.send_tweet()
-        time.sleep(3)
-
-    def refresh(self) -> None:
-        self.__type(".")
+        self.send_tweet(response)
+        time.sleep(Amount.TWEET_SEND)

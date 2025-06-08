@@ -5,9 +5,10 @@ import sys
 
 
 def main() -> None:
-    if len(sys.argv) != 4:
-        print("Invalid amount of arguments")
-        return
+    args_cur_amount, args_cor_amount = len(sys.argv), 4
+    if args_cur_amount != args_cor_amount:
+        message = f"Invalid amount of arguments provided ({args_cur_amount} != {args_cor_amount})"
+        return print(message)
 
     _, username, password, api_key = sys.argv
     llm = LLM(api_key)
