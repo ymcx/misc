@@ -21,8 +21,8 @@ def _contains_no_numbers(ticker: str) -> bool:
     return ticker.isalpha()
 
 
-def tickers(string: str) -> list[str]:
-    string = "".join(c for c in string if c == "$" or c == " " or c.isascii())
+def tickers(string: str) -> set[str]:
+    string = "".join(c for c in string if c == "$" or c == " " or c.isalnum())
     tickers = string.split()
 
     tickers = [t for t in tickers if _is_dollar(t) or _is_upper(t) and _not_filtered(t)]
@@ -31,4 +31,4 @@ def tickers(string: str) -> list[str]:
     tickers = [t for t in tickers if _is_correct_length(t)]
     tickers = [t for t in tickers if _contains_no_numbers(t)]
 
-    return tickers
+    return set(tickers)
