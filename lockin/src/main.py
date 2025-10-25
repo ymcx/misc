@@ -9,7 +9,7 @@ import graph
 
 SUBREDDITS = ["wallstreetbets", "pennystocks"]
 POLL_INTERVAL = 5
-AMOUNT_TO_LIST = 20
+AMOUNT_TO_LIST = 10
 
 
 def read_credentials(path: str) -> dict[str, str]:
@@ -62,7 +62,7 @@ def main() -> None:
         scores_data = format.scores_data(scores, AMOUNT_TO_LIST)
         graph.update(iteration, scores_data, figure, axes, lines)
 
-        ++iteration
+        iteration += 1
         time.sleep(60 * POLL_INTERVAL)
 
 
