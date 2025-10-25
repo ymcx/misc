@@ -4,6 +4,10 @@ from itertools import islice
 import calculate
 
 
+def _take(input: dict[str, float], n: int) -> dict[str, float]:
+    return dict(islice(input.items(), n))
+
+
 def _sum(
     scores: dict[str, dict[int, tuple[int, int, float, float]]],
 ) -> dict[str, float]:
@@ -23,19 +27,32 @@ def _sort(scores: dict[str, float]) -> dict[str, float]:
     return dict(scores_sorted)
 
 
-def _format(scores: dict[str, float], n: int) -> str:
+def _format(scores: dict[str, float]) -> str:
     scores_formatted = []
 
-    for ticker, score in islice(scores.items(), n):
+    for ticker, score in scores.items():
         line = f"{ticker:<5} {score:>4.0f}"
         scores_formatted.append(line)
 
     return "\n".join(scores_formatted)
 
 
-def scores(scores: dict[str, dict[int, tuple[int, int, float, float]]], n: int) -> str:
+def scores_str(
+    scores: dict[str, dict[int, tuple[int, int, float, float]]], n: int
+) -> str:
     scores_summed = _sum(scores)
     scores_sorted = _sort(scores_summed)
-    scores_formatted = _format(scores_sorted, n)
+    scores_sorted = _take(scores_sorted, n)
+    scores_formatted = _format(scores_sorted)
 
     return scores_formatted
+
+
+def scores_data(
+    scores: dict[str, dict[int, tuple[int, int, float, float]]], n: int
+) -> dict[str, float]:
+    scores_summed = _sum(scores)
+    scores_sorted = _sort(scores_summed)
+    scores_sorted = _take(scores_sorted, n)
+
+    return scores_sorted

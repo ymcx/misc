@@ -52,7 +52,7 @@ def main() -> None:
             for ticker in tickers:
                 scores[ticker][id] = (comments, score, ratio, epoch)
 
-        scores_formatted = format.scores(scores, AMOUNT_TO_LIST)
+        scores_formatted = format.scores_str(scores, AMOUNT_TO_LIST)
 
         os.system("clear")
         print(scores_formatted)
