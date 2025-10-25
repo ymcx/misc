@@ -5,6 +5,7 @@ import format
 import parse
 import time
 import sys
+import graph
 
 SUBREDDITS = ["wallstreetbets", "pennystocks"]
 POLL_INTERVAL = 5
@@ -32,9 +33,11 @@ def get_reddit(credentials: dict[str, str]) -> Reddit:
 def main() -> None:
     credentials = read_credentials(sys.argv[1])
     reddit = get_reddit(credentials)
+    figure, axes, lines = graph.create()
 
     scores = defaultdict(defaultdict)
     subreddits = "+".join(SUBREDDITS)
+    iteration = 0
 
     while True:
         submissions = reddit.subreddit(subreddits).new()
@@ -52,11 +55,14 @@ def main() -> None:
             for ticker in tickers:
                 scores[ticker][id] = (comments, score, ratio, epoch)
 
-        scores_formatted = format.scores_str(scores, AMOUNT_TO_LIST)
-
+        scores_str = format.scores_str(scores, AMOUNT_TO_LIST)
         os.system("clear")
-        print(scores_formatted)
+        print(scores_str)
 
+        scores_data = format.scores_data(scores, AMOUNT_TO_LIST)
+        graph.update(iteration, scores_data, figure, axes, lines)
+
+        ++iteration
         time.sleep(60 * POLL_INTERVAL)
 
 
