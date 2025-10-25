@@ -5,35 +5,43 @@ import parse
 import time
 import sys
 
+SUBREDDITS = ["wallstreetbets", "pennystocks"]
 
-def main() -> None:
-    arguments = sys.argv
 
-    reddit = Reddit(
-        client_id=arguments[1],
-        client_secret=arguments[2],
-        password=arguments[3],
-        username=arguments[4],
-        user_agent="android:com.app.spiritedfly:v12.4321.321 (by u/Spirited_Fly3248)",
+def read_credentials(path: str) -> dict[str, str]:
+    file = open(path)
+    credentials = [line.strip().split("=") for line in file]
+    file.close()
+
+    return dict(credentials)
+
+
+def get_reddit(credentials: dict[str, str]) -> Reddit:
+    return Reddit(
+        client_id=credentials["client_id"],
+        client_secret=credentials["client_secret"],
+        password=credentials["password"],
+        username=credentials["username"],
+        user_agent="Mozarella Firecat",
     )
 
-    last_title_new = ""
-    last_title = ""
 
+def main() -> None:
+    credentials = read_credentials(sys.argv[1])
+    reddit = get_reddit(credentials)
+
+    titles_old = set()
     scores = defaultdict(list)
+    subreddits = "+".join(SUBREDDITS)
 
     while True:
-        submissions = reddit.subreddit("wallstreetbets").new(limit=100)
-
-        first = True
+        submissions = reddit.subreddit(subreddits).new(limit=100)
 
         for submission in submissions:
-            if first:
-                last_title_new = submission.title
-                first = False
-
-            if submission.title == last_title:
+            if submission.title in titles_old:
                 break
+
+            titles_old.add(submission.title)
 
             tickers = parse.tickers(submission.title)
             score = submission.num_comments + submission.score
@@ -41,8 +49,6 @@ def main() -> None:
 
             for ticker in tickers:
                 scores[ticker].append((score, epoch))
-
-        last_title = last_title_new
 
         scores_format = format.scores(scores)
         print(scores_format)
