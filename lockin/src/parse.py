@@ -1,4 +1,4 @@
-FILTERLIST = []
+FILTERLIST = ["I", "AI", "W", "YOLO", "IPO"]
 
 
 def _is_dollar(ticker: str) -> bool:
