@@ -27,7 +27,7 @@ def _format(scores: dict[str, float], n: int) -> str:
     scores_formatted = []
 
     for ticker, score in islice(scores.items(), n):
-        line = f"{ticker:<20} {score:>10.0f}"
+        line = f"{ticker:<5} {score:>4.0f}"
         scores_formatted.append(line)
 
     return "\n".join(scores_formatted)

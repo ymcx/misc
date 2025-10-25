@@ -1,18 +1,34 @@
-def _starts_with_dollar(string: str) -> bool:
-    return string.startswith("$")
+FILTERLIST = []
 
 
-def _is_uppercase(string: str) -> bool:
-    return string.isupper()
+def _is_dollar(ticker: str) -> bool:
+    return ticker.startswith("$")
 
 
-def _contains_no_numbers(string: str) -> bool:
-    return string.isalpha()
+def _is_upper(ticker: str) -> bool:
+    return ticker.isupper()
+
+
+def _not_filtered(ticker: str) -> bool:
+    return ticker not in FILTERLIST
+
+
+def _is_correct_length(ticker: str) -> bool:
+    return 1 <= len(ticker) <= 5
+
+
+def _contains_no_numbers(ticker: str) -> bool:
+    return ticker.isalpha()
 
 
 def tickers(string: str) -> list[str]:
+    string = "".join(c for c in string if c == "$" or c == " " or c.isascii())
     tickers = string.split()
-    tickers = [i for i in tickers if _starts_with_dollar(i) or _is_uppercase(i)]
-    tickers = [i for i in tickers if _contains_no_numbers(i)]
+
+    tickers = [t for t in tickers if _is_dollar(t) or _is_upper(t) and _not_filtered(t)]
+    tickers = [t.replace("$", "").upper() for t in tickers]
+
+    tickers = [t for t in tickers if _is_correct_length(t)]
+    tickers = [t for t in tickers if _contains_no_numbers(t)]
 
     return tickers
