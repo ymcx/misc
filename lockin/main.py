@@ -13,8 +13,8 @@ def main() -> None:
         client_id=arguments[1],
         client_secret=arguments[2],
         password=arguments[3],
-        user_agent="android:com.app.spiritedfly:v12.4321.321 (by u/Spirited_Fly3248)",
         username=arguments[4],
+        user_agent="android:com.app.spiritedfly:v12.4321.321 (by u/Spirited_Fly3248)",
     )
 
     last_title_new = ""
@@ -37,10 +37,10 @@ def main() -> None:
 
             tickers = parse.tickers(submission.title)
             score = submission.num_comments + submission.score
-            date = submission.created_utc
+            epoch = submission.created_utc
 
             for ticker in tickers:
-                scores[ticker].append((score, date))
+                scores[ticker].append((score, epoch))
 
         last_title = last_title_new
 

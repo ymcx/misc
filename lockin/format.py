@@ -7,8 +7,8 @@ def _sum(scores: dict[str, list[tuple[int, float]]]) -> dict[str, int]:
     scores_summed = defaultdict(int)
 
     for ticker, entries in scores.items():
-        for score, date in entries:
-            scores_summed[ticker] += calculate.score(score, date)
+        for score, epoch in entries:
+            scores_summed[ticker] += calculate.score(score, epoch)
 
     return scores_summed
 
