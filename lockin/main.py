@@ -1,11 +1,14 @@
 from praw import Reddit
 from collections import defaultdict
+import os
 import format
 import parse
 import time
 import sys
 
 SUBREDDITS = ["wallstreetbets", "pennystocks"]
+POLL_INTERVAL = 5
+AMOUNT_TO_LIST = 20
 
 
 def read_credentials(path: str) -> dict[str, str]:
@@ -30,7 +33,7 @@ def main() -> None:
     credentials = read_credentials(sys.argv[1])
     reddit = get_reddit(credentials)
 
-    scores = defaultdict(lambda: defaultdict(tuple))
+    scores = defaultdict(defaultdict)
     subreddits = "+".join(SUBREDDITS)
 
     while True:
@@ -49,10 +52,12 @@ def main() -> None:
             for ticker in tickers:
                 scores[ticker][id] = (comments, score, ratio, epoch)
 
-        scores_format = format.scores(scores, 10)
-        print(scores_format)
+        scores_formatted = format.scores(scores, AMOUNT_TO_LIST)
 
-        time.sleep(60)
+        os.system("clear")
+        print(scores_formatted)
+
+        time.sleep(60 * POLL_INTERVAL)
 
 
 if __name__ == "__main__":
