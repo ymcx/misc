@@ -2,7 +2,7 @@ import time
 import math
 
 
-def score(score: int, epoch: float) -> float:
+def score(comments: int, score: int, ratio: float, epoch: float) -> float:
     epoch_current = time.time()
     epoch_diff = epoch_current - epoch
 
@@ -11,4 +11,4 @@ def score(score: int, epoch: float) -> float:
     k = 0.00002
     multiplier = math.exp(-k * epoch_diff)
 
-    return multiplier * score
+    return multiplier * ratio * (comments + score)

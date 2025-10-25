@@ -30,27 +30,26 @@ def main() -> None:
     credentials = read_credentials(sys.argv[1])
     reddit = get_reddit(credentials)
 
-    titles_old = set()
-    scores = defaultdict(list)
+    scores = defaultdict(lambda: defaultdict(tuple))
     subreddits = "+".join(SUBREDDITS)
 
     while True:
-        submissions = reddit.subreddit(subreddits).new(limit=100)
+        submissions = reddit.subreddit(subreddits).new()
 
         for submission in submissions:
-            if submission.title in titles_old:
-                break
-
-            titles_old.add(submission.title)
-
-            tickers = parse.tickers(submission.title)
-            score = submission.num_comments + submission.score
+            id = submission.id
+            title = submission.title
+            comments = submission.num_comments
+            score = submission.score
+            ratio = submission.upvote_ratio
             epoch = submission.created_utc
 
-            for ticker in tickers:
-                scores[ticker].append((score, epoch))
+            tickers = parse.tickers(title)
 
-        scores_format = format.scores(scores)
+            for ticker in tickers:
+                scores[ticker][id] = (comments, score, ratio, epoch)
+
+        scores_format = format.scores(scores, 10)
         print(scores_format)
 
         time.sleep(60)
