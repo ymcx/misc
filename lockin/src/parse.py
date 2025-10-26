@@ -1,16 +1,9 @@
-FILTERLIST = ["I", "AI", "W", "YOLO", "IPO"]
-
-
 def _is_dollar(ticker: str) -> bool:
     return ticker.startswith("$")
 
 
 def _is_upper(ticker: str) -> bool:
     return ticker.isupper()
-
-
-def _not_filtered(ticker: str) -> bool:
-    return ticker not in FILTERLIST
 
 
 def _is_correct_length(ticker: str) -> bool:
@@ -25,7 +18,7 @@ def tickers(string: str) -> set[str]:
     string = "".join(c for c in string if c == "$" or c == " " or c.isalnum())
     tickers = string.split()
 
-    tickers = [t for t in tickers if _is_dollar(t) or _is_upper(t) and _not_filtered(t)]
+    tickers = [t for t in tickers if _is_dollar(t) or _is_upper(t)]
     tickers = [t.replace("$", "").upper() for t in tickers]
 
     tickers = [t for t in tickers if _is_correct_length(t)]

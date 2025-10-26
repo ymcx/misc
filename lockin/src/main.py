@@ -7,9 +7,21 @@ import time
 import sys
 import graph
 
-SUBREDDITS = ["wallstreetbets", "pennystocks"]
 POLL_INTERVAL = 5
-AMOUNT_TO_LIST = 10
+AMOUNT_TO_LIST = 20
+SUBREDDITS = [
+    "DIVIDENDINVESTING",
+    "FINANCE",
+    "INVESTING",
+    "OPTIONS",
+    "PENNYSTOCKS",
+    "ROBINHOOD",
+    "STOCKMARKET",
+    "STOCKS",
+    "TRADING",
+    "VALUEINVESTING",
+    "WALLSTREETBETS",
+]
 
 
 def read_credentials(path: str) -> dict[str, str]:

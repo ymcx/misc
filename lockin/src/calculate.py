@@ -7,8 +7,8 @@ def score(comments: int, score: int, ratio: float, epoch: float) -> float:
     epoch_diff = epoch_current - epoch
 
     # Exponential decay
-    # Multiplier is 1.0 at 0 hours, 0.5 at ~10 hours
-    k = 0.00002
+    # Multiplier is 1.0 at 0 hours, 0.5 at ~4 hours
+    k = 0.00005
     multiplier = math.exp(-k * epoch_diff)
 
     return multiplier * ratio * (comments + score)
