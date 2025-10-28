@@ -59,13 +59,12 @@ def main() -> None:
             title = submission.title
             comments = submission.num_comments
             score = submission.score
-            ratio = submission.upvote_ratio
             epoch = submission.created_utc
 
             tickers = parse.tickers(title)
 
             for ticker in tickers:
-                scores[ticker][id] = (comments, score, ratio, epoch)
+                scores[ticker][id] = (comments, score, epoch)
 
         scores_str = format.scores_str(scores, AMOUNT_TO_LIST)
         os.system("clear")

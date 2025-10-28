@@ -9,14 +9,14 @@ def _take(input: dict[str, float], n: int) -> dict[str, float]:
 
 
 def _sum(
-    scores: dict[str, dict[int, tuple[int, int, float, float]]],
+    scores: dict[str, dict[int, tuple[int, int, float]]],
 ) -> dict[str, float]:
     scores_summed = defaultdict(float)
 
     for ticker, submissions in scores.items():
         for _, submission in submissions.items():
-            comments, score, ratio, epoch = submission
-            scores_summed[ticker] += calculate.score(comments, score, ratio, epoch)
+            comments, score, epoch = submission
+            scores_summed[ticker] += calculate.score(comments, score, epoch)
 
     return scores_summed
 
@@ -37,9 +37,7 @@ def _format(scores: dict[str, float]) -> str:
     return "\n".join(scores_formatted)
 
 
-def scores_str(
-    scores: dict[str, dict[int, tuple[int, int, float, float]]], n: int
-) -> str:
+def scores_str(scores: dict[str, dict[int, tuple[int, int, float]]], n: int) -> str:
     scores_summed = _sum(scores)
     scores_sorted = _sort(scores_summed)
     scores_sorted = _take(scores_sorted, n)
@@ -49,7 +47,7 @@ def scores_str(
 
 
 def scores_data(
-    scores: dict[str, dict[int, tuple[int, int, float, float]]], n: int
+    scores: dict[str, dict[int, tuple[int, int, float]]], n: int
 ) -> dict[str, float]:
     scores_summed = _sum(scores)
     scores_sorted = _sort(scores_summed)
