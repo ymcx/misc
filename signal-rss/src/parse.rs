@@ -1,71 +1,44 @@
-use crate::{
-    connection::SignalConnection,
-    feed::{Article, Feed},
-};
+use crate::{connection::Connection, feed::Stream};
 use base64::{Engine, prelude::BASE64_STANDARD};
-use chrono::{DateTime, FixedOffset, Local};
-use std::error::Error;
+use chrono::{DateTime, Utc};
+use std::{env, error::Error, fs};
 
-pub async fn parse_feeds(
-    connection: &SignalConnection,
-    feeds: &Vec<(Vec<u8>, String, Option<String>)>,
-    last_sync: &DateTime<FixedOffset>,
+pub async fn sync_feeds(
+    connection: &Connection,
+    feeds: &Vec<(Vec<u8>, String)>,
+    last_sync: &DateTime<Utc>,
 ) -> Result<(), Box<dyn Error>> {
     for feed in feeds {
-        let group = &feed.0;
+        let feed_group = &feed.0;
         let feed_url = &feed.1;
-        let replacement_host = &feed.2;
+        let stream = Stream::new(feed_url).await?;
 
-        let articles = Feed::new(feed_url).await?.articles;
-        for article in articles {
-            let time = &article.time();
-            if time < last_sync {
+        for article in stream.0 {
+            if article.time()? < *last_sync {
                 continue;
             }
 
-            let mut url = article.url();
-            if let Some(replacement_host) = replacement_host {
-                let host = Article::host(&url);
-                url = url.replace(&host, &replacement_host);
-            }
-
-            let title = article.title();
-            let message = &format!("{}\n{}", title, url);
-            connection.send(message, group)?;
+            let message = format!("{}\n{}", article.title()?, article.url()?);
+            connection.send(&message, feed_group)?;
         }
     }
 
     Ok(())
 }
 
-fn arg() -> String {
-    std::env::args()
-        .collect::<Vec<_>>()
-        .get(1)
-        .unwrap_or(&String::default())
-        .to_string()
+fn parse_feed(feed: &str) -> Result<(Vec<u8>, String), Box<dyn Error>> {
+    let (group, url) = feed.split_once(' ').ok_or("Invalid feed")?;
+    let group = BASE64_STANDARD.decode(group)?;
+    let url = url.to_string();
+
+    Ok((group, url))
 }
 
-pub fn time() -> DateTime<FixedOffset> {
-    Local::now().fixed_offset()
-}
+pub fn parse_feeds() -> Result<Vec<(Vec<u8>, String)>, Box<dyn Error>> {
+    let arguments: Vec<String> = env::args().collect();
+    let path = arguments.get(1).ok_or("No file provided")?;
+    let contents = fs::read_to_string(path)?;
+    let feeds = contents.lines().map(|feed| parse_feed(feed)).collect();
 
-pub fn get_feeds() -> Vec<(Vec<u8>, String, Option<String>)> {
-    let file = arg();
-    if let Ok(feeds) = std::fs::read_to_string(file) {
-        return feeds
-            .lines()
-            .map(|line| {
-                let mut parts = line.split_whitespace();
-                let group = parts.next().unwrap_or_default().to_string();
-                let group_decoded = BASE64_STANDARD.decode(group).unwrap_or_default();
-                let url = parts.next().unwrap_or_default().to_string();
-                let replacement_host = parts.next().map(|i| i.to_string());
-                (group_decoded, url, replacement_host)
-            })
-            .collect();
-    }
-
-    eprintln!("Couldn't read from the file");
-    std::process::exit(1);
+    feeds
 }

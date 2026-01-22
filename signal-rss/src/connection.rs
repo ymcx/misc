@@ -1,23 +1,17 @@
 use dbus::blocking::LocalConnection;
 use std::{error::Error, time::Duration};
 
-pub struct SignalConnection {
-    connection: LocalConnection,
-}
+pub struct Connection(LocalConnection);
 
-impl SignalConnection {
-    pub fn new() -> Self {
-        match LocalConnection::new_session() {
-            Ok(connection) => Self { connection },
-            Err(e) => {
-                eprintln!("{e}");
-                std::process::exit(1);
-            }
-        }
+impl Connection {
+    pub fn new() -> Result<Self, Box<dyn Error>> {
+        let connection = LocalConnection::new_session()?;
+
+        Ok(Self(connection))
     }
 
     pub fn send(&self, message: &str, group: &[u8]) -> Result<(), Box<dyn Error>> {
-        self.connection
+        self.0
             .with_proxy(
                 "org.asamk.Signal",
                 "/org/asamk/Signal",

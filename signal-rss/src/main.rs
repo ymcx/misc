@@ -1,22 +1,24 @@
-use connection::SignalConnection;
-use std::time::Duration;
+use crate::connection::Connection;
+use chrono::Utc;
+use std::{error::Error, time::Duration};
+use tokio::time;
 
 mod connection;
 mod feed;
 mod parse;
 
 #[tokio::main]
-async fn main() {
-    let feeds = parse::get_feeds();
-    let connection = SignalConnection::new();
-    let mut last_sync = parse::time();
+async fn main() -> Result<(), Box<dyn Error>> {
+    let connection = Connection::new()?;
+    let feeds = parse::parse_feeds()?;
+    let mut last_sync = Utc::now();
 
     loop {
-        let _ = parse::parse_feeds(&connection, &feeds, &last_sync)
-            .await
-            .map_err(|e| eprintln!("{e}"));
+        if let Err(e) = parse::sync_feeds(&connection, &feeds, &last_sync).await {
+            eprintln!("{}", e);
+        }
 
-        last_sync = parse::time();
-        tokio::time::sleep(Duration::from_secs(60 * 60)).await;
+        last_sync = Utc::now();
+        time::sleep(Duration::from_hours(1)).await;
     }
 }
