@@ -5,6 +5,7 @@ For compiling ThinkLed, you will need Meson, a C compiler such as GCC, systemd a
 ```
 meson setup build
 meson compile -C build
-./build/thinkbright +
-./build/thinkbright -
+sudo cp thinkled.service /etc/systemd/user/
+sudo cp thinkled.timer /etc/systemd/user/
+systemctl enable --now --user thinkled.timer
 ```
