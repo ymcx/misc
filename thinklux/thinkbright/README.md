@@ -5,6 +5,7 @@ For compiling ThinkBright, you will need Meson, a C compiler such as GCC, system
 ```
 meson setup build
 meson compile -C build
-./build/thinkbright +
-./build/thinkbright -
+sudo ln -s $PWD/build/thinkbright /usr/local/bin/
+thinkbright +
+thinkbright -
 ```

@@ -7,5 +7,6 @@ meson setup build
 meson compile -C build
 sudo cp thinkled.service /etc/systemd/user/
 sudo cp thinkled.timer /etc/systemd/user/
+sudo ln -s $PWD/build/thinkled /usr/local/bin/
 systemctl enable --now --user thinkled.timer
 ```
