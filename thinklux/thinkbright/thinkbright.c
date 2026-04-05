@@ -2,12 +2,16 @@
 #include <stdio.h>
 #include <systemd/sd-bus.h>
 
-static const double EXPONENT = 2.2;
+// I found the exponent by trial & error along with using my smartphone as a
+// poor man's calibration tool.
+static const double EXPONENT = 4.0;
 static const double MAX = 24242.0;
-static const int BRIGHTNESS_LEVELS[11] = {
-    // Pre-calculated list of brightness values calculated using x^EXPONENT.
-    // The minimum brightness is set to 1, since 0 turns off the screen.
-    1, 153, 703, 1715, 3229, 5276, 7880, 11061, 14838, 19227, 24242,
+
+// Pre-calculated list of brightness values calculated using
+// x ^ EXPONENT * MAX, where x ∈ [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].
+// The change from 0.0 to 0.3 is unnoticable so we don't include it.
+static const int BRIGHTNESS_LEVELS[8] = {
+    196, 621, 1515, 3142, 5821, 9930, 15905, 24242,
 };
 
 int min(const int a, const int b) { return a < b ? a : b; }
@@ -23,7 +27,7 @@ int getLevel(void) {
   fclose(file);
 
   const double scaled = pow((double)brightness / MAX, 1.0 / EXPONENT);
-  return round(scaled * 10.0);
+  return round(scaled * 10.0) - 3.0;
 }
 
 // Reads the argument and increments/decrements it accordingly.
@@ -33,7 +37,7 @@ int updateLevel(const int level, const char arg) {
   case '-':
     return max(level - 1, 0);
   case '+':
-    return min(level + 1, 10);
+    return min(level + 1, 7);
   default:
     return level;
   }
