@@ -1,5 +1,5 @@
 [Unit]
-Description=ThinkLed
+Description=ThinkLux Beacon
 
 [Timer]
 OnCalendar=*:0/5

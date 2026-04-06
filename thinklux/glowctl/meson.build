@@ -1,5 +1,5 @@
 project(
-  'thinkled',
+  'tlglowctl',
   'c',
   meson_version : '>= 1.3.0',
   version : '0.1',
@@ -7,18 +7,19 @@ project(
 )
 
 dependencies = [
-  dependency('libsystemd')
+  dependency('libsystemd'),
 ]
 
 sources = [
-  'thinkled.c',
+  'main.c',
 ]
 
 exe = executable(
-  'thinkled',
+  'tlglowctl',
   sources,
   dependencies : dependencies,
   install : true,
+  link_args : ['-lm']
 )
 
 test('basic', exe)

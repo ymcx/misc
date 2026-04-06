@@ -1,6 +1,0 @@
-[Unit]
-Description=ThinkLed
-
-[Service]
-Type=oneshot
-ExecStart=thinkled
