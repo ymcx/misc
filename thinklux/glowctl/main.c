@@ -1,66 +1,140 @@
-#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <systemd/sd-bus.h>
 
-// I found the exponent by trial & error along with using my smartphone as a
-// poor man's calibration tool.
-static const double EXPONENT = 4.0;
-static const double MAX = 24242.0;
-
-// Pre-calculated list of brightness values calculated using
-// x ^ EXPONENT * MAX, where x ∈ [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].
-// The change from 0.0 to 0.3 is unnoticable so we don't include it.
-static const int BRIGHTNESS_LEVELS[8] = {
-    196, 621, 1515, 3142, 5821, 9930, 15905, 24242,
+// A pre-calculated list of brightness values calculated using
+// x ^ EXPONENT * MAX, where
+//   x ∈ [0.0, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+//     A brightness of 0 makes the screen go completely dark, set it to 1
+//     0.1, 0.2 are skipped since they were too close to 0.0 and 0.3
+//   EXPONENT = 4
+//     I tried doing some poor man's calibration using a smartphone but mostly
+//     eye-balled it
+//   MAX = max(BRIGHTNESS_STATES)
+static const int BRIGHTNESS_STATES[] = {
+    1, 196, 621, 1515, 3142, 5821, 9930, 15905, 24242,
 };
 
 int min(const int a, const int b) { return a < b ? a : b; }
 
 int max(const int a, const int b) { return a > b ? a : b; }
 
-// Reads the current brightness value, transforms it using the given exponent
-// and discretizes it.
-int getLevel(void) {
-  int brightness;
-  FILE *file = fopen("/sys/class/backlight/intel_backlight/brightness", "rb");
-  fscanf(file, "%d", &brightness);
-  fclose(file);
+// Retrieve the directory where the saved state is located at
+void getStateFile(char *stateFile) {
+  const char *xdg_state_home = getenv("XDG_STATE_HOME");
 
-  const double scaled = pow((double)brightness / MAX, 1.0 / EXPONENT);
-  return round(scaled * 10.0) - 3.0;
-}
-
-// Reads the argument and increments/decrements it accordingly.
-// The value is additionally clamped to [0, 10].
-int updateLevel(const int level, const char arg) {
-  switch (arg) {
-  case '-':
-    return max(level - 1, 0);
-  case '+':
-    return min(level + 1, 7);
-  default:
-    return level;
+  // https://wiki.archlinux.org/title/XDG_Base_Directory#User_directories
+  if (xdg_state_home == NULL) {
+    const char *home = getenv("HOME");
+    snprintf(stateFile, 100, "%s/.local/state/tlglowctl", home);
+  } else {
+    snprintf(stateFile, 100, "%s/tlglowctl", xdg_state_home);
   }
 }
 
-// Sets the brightness from the given table.
-// The brightness is set via D-Bus so that we don't need root permissions.
-void setLevel(const int level) {
+// Create the file containing the current state if it doesn't exist already
+int createStateFile(const char *stateFile) {
+  FILE *file = fopen(stateFile, "rb");
+  if (file == NULL) {
+    // File doesn't exist
+    file = fopen(stateFile, "wb");
+    if (file == NULL) {
+      // Unable to create the file
+      return -1;
+    }
+  }
+
+  fclose(file);
+  return 0;
+}
+
+// Reads the state value from the given file
+int readState(const char *stateFile) {
+  FILE *file = fopen(stateFile, "rb");
+  if (file == NULL) {
+    return -1;
+  }
+
+  int stateValue = 0;
+  fread(&stateValue, sizeof(int), 1, file);
+  fclose(file);
+  return stateValue;
+}
+
+// Updates the state value according to the given argument
+int updateState(const int stateValue, const char argument) {
+  int stateAmount;
+
+  switch (argument) {
+  case '-':
+    return max(stateValue - 1, 0);
+  case '+':
+    stateAmount = sizeof(BRIGHTNESS_STATES) / sizeof(BRIGHTNESS_STATES[0]);
+    return min(stateValue + 1, stateAmount - 1);
+  default:
+    return stateValue;
+  }
+}
+
+// Write the new state back to the file
+int writeState(const char *stateFile, const int stateValue) {
+  FILE *file = fopen(stateFile, "wb");
+  if (file == NULL) {
+    return -1;
+  }
+
+  fwrite(&stateValue, sizeof(int), 1, file);
+  fclose(file);
+  return 0;
+}
+
+// Sets the brightness from the given table using the given state
+int setBrightness(const int stateValue) {
   sd_bus *bus;
   sd_bus_default_system(&bus);
-  sd_bus_call_method(
+  return sd_bus_call_method(
       bus, "org.freedesktop.login1", "/org/freedesktop/login1/session/auto",
       "org.freedesktop.login1.Session", "SetBrightness", NULL, NULL, "ssu",
-      "backlight", "intel_backlight", BRIGHTNESS_LEVELS[level]);
+      "backlight", "intel_backlight", BRIGHTNESS_STATES[stateValue]);
 }
 
 int main(const int argc, const char **argv) {
-  // We need to know if we're incrementing or decrementing the brightness.
+  int success, state;
+  char stateFile[100];
+
+  // We need to know if we're incrementing or decrementing the brightness
   if (argc < 2) {
+    fprintf(stderr, "No action provided");
     return 0;
   }
 
-  int level = getLevel();
-  level = updateLevel(level, argv[1][0]);
-  setLevel(level);
+  // Create the statefile if it doesn't exist
+  getStateFile(stateFile);
+  success = createStateFile(stateFile);
+  if (success < 0) {
+    fprintf(stderr, "Unable to create the statefile");
+    return 0;
+  }
+
+  // Read the statefile
+  state = readState(stateFile);
+  if (state < 0) {
+    fprintf(stderr, "Unable to read the statefile");
+    return 0;
+  }
+
+  // Write the updated state
+  state = updateState(state, argv[1][0]);
+  success = writeState(stateFile, state);
+  if (success < 0) {
+    fprintf(stderr, "Unable to write to the statefile");
+    return 0;
+  }
+
+  // Set the updated brightness
+  success = setBrightness(state);
+  if (success < 0) {
+    fprintf(stderr, "Unable to set the brightness");
+    return 0;
+  }
 }
