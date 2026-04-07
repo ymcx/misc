@@ -32,8 +32,8 @@ void getStateFile(char *stateFile) {
   }
 }
 
-// Create the file containing the current state if it doesn't exist already
-int createStateFile(const char *stateFile) {
+// Reads the state value from the given file
+int readState(const char *stateFile) {
   FILE *file = fopen(stateFile, "rb");
   if (file == NULL) {
     // File doesn't exist
@@ -42,17 +42,6 @@ int createStateFile(const char *stateFile) {
       // Unable to create the file
       return -1;
     }
-  }
-
-  fclose(file);
-  return 0;
-}
-
-// Reads the state value from the given file
-int readState(const char *stateFile) {
-  FILE *file = fopen(stateFile, "rb");
-  if (file == NULL) {
-    return -1;
   }
 
   int stateValue = 0;
@@ -108,18 +97,11 @@ int main(const int argc, const char **argv) {
     return 0;
   }
 
-  // Create the statefile if it doesn't exist
-  getStateFile(stateFile);
-  success = createStateFile(stateFile);
-  if (success < 0) {
-    fprintf(stderr, "Unable to create the statefile");
-    return 0;
-  }
-
   // Read the statefile
+  getStateFile(stateFile);
   state = readState(stateFile);
   if (state < 0) {
-    fprintf(stderr, "Unable to read the statefile");
+    fprintf(stderr, "Unable to create the statefile");
     return 0;
   }
 
