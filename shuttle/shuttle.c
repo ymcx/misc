@@ -6,16 +6,17 @@
 #include <string.h>
 #include <zlib.h>
 
-static const char *filename_gz = "file.gz";
-static const char *filename_xml = "file.xml";
-static const char *channels[] = {"YLE.TV1.fi", "YLE.TV2.fi", "MTV3.fi"};
-static const char *url =
+static const int BUF_SIZE = 256;
+static const char *FILENAME_GZ = "file.gz";
+static const char *FILENAME_XML = "file.xml";
+static const char *CHANNELS[] = {"YLE.TV1.fi", "YLE.TV2.fi", "MTV3.fi"};
+static const char *URL =
     "https://epgshare01.online/epgshare01/epg_ripper_FI1.xml.gz";
 
 int matches_channel(const char *channel) {
-  const size_t length = sizeof(channels) / sizeof(channels[0]);
+  const size_t length = sizeof(CHANNELS) / sizeof(CHANNELS[0]);
   for (size_t i = 0; i < length; ++i) {
-    if (strcmp(channel, channels[i]) == 0) {
+    if (strcmp(channel, CHANNELS[i]) == 0) {
       return 1;
     }
   }
@@ -29,14 +30,14 @@ size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
 
 void download_file(void) {
   // Create & truncate the output file
-  FILE *file = fopen(filename_gz, "w");
+  FILE *file = fopen(FILENAME_GZ, "w");
 
   // Init
   curl_global_init(CURL_GLOBAL_NOTHING);
   CURL *curl = curl_easy_init();
 
   // Options
-  curl_easy_setopt(curl, CURLOPT_URL, url);
+  curl_easy_setopt(curl, CURLOPT_URL, URL);
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, file);
 
@@ -48,8 +49,8 @@ void download_file(void) {
 }
 
 void extract_file(void) {
-  const gzFile file_in = gzopen64(filename_gz, "r");
-  FILE *file_out = fopen(filename_xml, "w");
+  const gzFile file_in = gzopen64(FILENAME_GZ, "r");
+  FILE *file_out = fopen(FILENAME_XML, "w");
 
   char buf[8192];
   int bytes;
@@ -93,30 +94,33 @@ int parse_programme(const xmlNode *node, const int timezone_delta,
   const time_t start_epoch = mktime(&start_time) + timezone_delta;
 
   // Convert back to a printable string
-  char start_adjusted[32];
+  char start_adjusted[BUF_SIZE];
   struct tm *start_time_adjusted = localtime(&start_epoch);
   strftime(start_adjusted, sizeof(start_adjusted), "%d.%m.%Y %H:%M",
            start_time_adjusted);
 
+  xmlChar *title = NULL;
   for (xmlNode *child = node->children; child; child = child->next) {
     const xmlChar *name = child->name;
 
-    // We're only looking for the title. If the node is not a title object,
-    // continue
+    // We're only looking for the title. Continue if it's not a title object
     if (strcmp((const char *)name, "title") != 0) {
       continue;
     }
 
-    xmlChar *title = xmlNodeGetContent(child);
-    strcpy(title_dst, (const char *)title);
-    xmlFree(title);
-
+    title = xmlNodeGetContent(child);
     break;
   }
 
-  strcpy(channel_dst, (const char *)channel);
-  strcpy(start_dst, start_adjusted);
+  strncpy(title_dst, (const char *)title, BUF_SIZE - 1);
+  strncpy(channel_dst, (const char *)channel, BUF_SIZE - 1);
+  strncpy(start_dst, start_adjusted, BUF_SIZE - 1);
 
+  title[BUF_SIZE - 1] = '\0';
+  channel[BUF_SIZE - 1] = '\0';
+  start_adjusted[BUF_SIZE - 1] = '\0';
+
+  xmlFree(title);
   xmlFree(channel);
   xmlFree(start);
 
@@ -140,11 +144,11 @@ int get_timezone_delta(void) {
 void parse_file(void) {
   const int timezone_delta = get_timezone_delta();
 
-  char *start = malloc(1 * sizeof(char));
-  char *title = malloc(1 * sizeof(char));
-  char *channel = malloc(1 * sizeof(char));
+  char *start = malloc(BUF_SIZE * sizeof(char));
+  char *title = malloc(BUF_SIZE * sizeof(char));
+  char *channel = malloc(BUF_SIZE * sizeof(char));
 
-  const xmlDoc *document = xmlReadFile(filename_xml, NULL, 0);
+  const xmlDoc *document = xmlReadFile(FILENAME_XML, NULL, 0);
   const xmlNode *root = xmlDocGetRootElement(document);
 
   for (xmlNode *child = root->children; child; child = child->next) {
