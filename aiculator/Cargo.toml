@@ -1,0 +1,12 @@
+[package]
+name = "AIculator"
+version = "0.1.2"
+edition = "2024"
+
+[dependencies]
+gtk4 = "0.9.6"
+libadwaita = "0.7.2"
+ollama-rs = "0.3.1"
+regex = "1.11.1"
+tokio = { version = "1.45.0", features = ["full"] }
+
