@@ -1,0 +1,6 @@
+[Unit]
+Description=ThinkLux Beacon
+
+[Service]
+Type=oneshot
+ExecStart=tlbeacon
