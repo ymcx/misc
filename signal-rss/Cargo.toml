@@ -1,0 +1,14 @@
+[package]
+name = "signal-rss"
+version = "0.4.4"
+edition = "2024"
+
+[dependencies]
+atom_syndication = "0.12.7"
+base64 = "0.22.1"
+chrono = "0.4.43"
+dbus = "0.9.10"
+quick-xml = "0.39.0"
+reqwest = "0.13.1"
+rss = "2.0.12"
+tokio = { version = "1.49.0", features = ["full"] }
