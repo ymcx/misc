@@ -1,0 +1,22 @@
+[credentials]
+client_id = ""
+client_secret = ""
+password = ""
+username = ""
+
+[settings]
+amount_to_list = 20
+poll_interval = 300
+subreddits = [
+  "DIVIDENDINVESTING",
+  "FINANCE",
+  "INVESTING",
+  "OPTIONS",
+  "PENNYSTOCKS",
+  "ROBINHOOD",
+  "STOCKMARKET",
+  "STOCKS",
+  "TRADING",
+  "VALUEINVESTING",
+  "WALLSTREETBETS",
+]
