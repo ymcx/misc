@@ -1,0 +1,8 @@
+{
+  "uuid": "foot-dimmer@ymcx",
+  "name": "Foot Dimmer",
+  "description": "Dim unfocused Foot windows",
+  "version": 1,
+  "shell-version": ["46"],
+  "url": "https://github.com/ymcx/foot-dimmer"
+}
