@@ -1,0 +1,25 @@
+name: Radon
+on: workflow_dispatch
+jobs:
+  Radon:
+    runs-on: windows-latest
+    steps:
+    - name: Radon
+      run: |
+        invoke-webrequest -uri https://download.oracle.com/java/19/latest/jdk-19_windows-x64_bin.zip -outfile a.zip
+        tar xf a.zip
+        get-childitem | where {$_.name -like 'jdk*'} | %{ren $_ a}
+        $env:JAVA_HOME = "$pwd\a"
+        git clone -q --depth=1 https://github.com/ymcx/radon
+        cd radon
+        (Get-Content gradle\wrapper\gradle-wrapper.properties).replace(‘/gradle-8.0-milestone-5’,((curl -s https://services.gradle.org/versions/nightly | select-string version) -replace '  "version" : "','-snapshots/gradle-' -replace '",','')) | Set-Content gradle\wrapper\gradle-wrapper.properties
+        .\gradlew.bat -q --no-daemon assemblerelease
+        invoke-webrequest -uri https://dl.google.com/android/repository/build-tools_r33-windows.zip -outfile a.zip
+        tar xf a.zip
+        .\android-*\zipalign.exe 4 app\build\outputs\apk\release\app-release-unsigned.apk radon.apk
+        .\android-*\apksigner.bat sign --ks-key-alias keystore --ks-pass pass:keystore --ks .github\workflows\keystore.jks radon.apk
+    - name: Upload
+      uses: svenstaro/upload-release-action@v2
+      with:
+        file: radon/radon.apk
+        overwrite: true

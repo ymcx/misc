@@ -1,0 +1,21 @@
+name: ReVanced
+on: workflow_dispatch
+jobs:
+  ReVanced:
+    runs-on: ubuntu-latest
+    steps:
+    - name: ReVanced
+      run: |
+        sudo apt install -yqq openjdk-19-jdk
+        wget -q https://github.com/efforg/apkeep/releases/latest/download/apkeep-x86_64-unknown-linux-gnu
+        chmod +x apkeep-x86_64-unknown-linux-gnu 
+        ./apkeep-x86_64-unknown-linux-gnu -a com.google.android.youtube .
+        curl -s https://api.github.com/repos/revanced/revanced-integrations/releases/latest | grep browser_download_url.*apk | cut -d : -f 2,3 | tr -d \" | wget -qi -
+        curl -s https://api.github.com/repos/revanced/revanced-patches/releases/latest | grep browser_download_url.*jar | cut -d : -f 2,3 | tr -d \" | wget -qi -
+        curl -s https://api.github.com/repos/revanced/revanced-cli/releases/latest | grep browser_download_url.*jar | cut -d : -f 2,3 | tr -d \" | wget -qi -
+        java -jar *cli*.jar -a *youtube*.apk -o revanced.apk -b *patches*.jar --exclusive --experimental -m *integrations*.apk -i video-ads -i disable-fullscreen-panels -i hide-create-button -i microg-support -i general-ads -i minimized-playback
+    - name: Upload
+      uses: svenstaro/upload-release-action@v2
+      with:
+        file: revanced.apk
+        overwrite: true
