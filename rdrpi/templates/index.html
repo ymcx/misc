@@ -1,0 +1,33 @@
+<html>
+
+<head>
+  <title>RDRPI</title>
+  <meta name="viewport" content="initial-scale=1.0">
+  <link href="assets/style.css" rel="stylesheet" />
+  <script src="assets/script.js"></script>
+</head>
+
+<body>
+  <form method="post" id="change_stream" action="/change_stream" class="streams">
+    {% for stream in streams %}
+    <button title="{{ stream }}" value="{{ loop.index0 }}" name="selection" onclick="form.submit()" class={% if
+      loop.index0==selection && !paused %}"stream-selected"{% else %}stream-unselected{% endif %}>{{ stream }}</button>
+    {% endfor %}
+  </form>
+
+  <form method="post" id="add_stream" action="/add_stream">
+    <input type="hidden" name="address" id="address">
+    <input type="hidden" name="name" id="name">
+    <button onclick="add_stream()">Add a stream</button>
+  </form>
+
+  <form method="post" id="delete_stream" action="/delete_stream">
+    <button onclick="form.submit()">Delete the selected stream</button>
+  </form>
+
+  <form method="post" id="set_volume" action="/set_volume">
+    <input type="range" min="0" max="100" value="{{ volume }}" name="volume" onchange="form.submit()">
+  </form>
+</body>
+
+</html>
